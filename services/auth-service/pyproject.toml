@@ -1,0 +1,12 @@
+[project]
+name = "auth-service"
+version = "0.1.0"
+description = "Nexus microservice"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.40.0",
+    "email-validator>=2.2.0",
+    "fastapi[standard]>=0.139.0",
+    "psycopg[binary]>=3.2.0",
+]
