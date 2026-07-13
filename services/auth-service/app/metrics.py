@@ -65,7 +65,7 @@ def render_metrics(service: str, version: str) -> str:
         "# HELP nexus_http_request_duration_seconds HTTP request duration in seconds.",
         "# TYPE nexus_http_request_duration_seconds histogram",
     ])
-    for (method, path, le), count in sorted(DURATION_BUCKETS.items(), key=lambda item: (item[0][0], item[0][1], str(item[0][2]))):
+    for (method, path, le), count in sorted(DURATION_BUCKETS.items(), key=lambda item: (item[0][0], item[0][1], float(item[0][2]) if item[0][2] != "+Inf" else float("inf"))):
         lines.append(
             f'nexus_http_request_duration_seconds_bucket{{{labels(method=method, path=path, le=le)}}} {count}'
         )
