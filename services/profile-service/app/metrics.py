@@ -12,7 +12,9 @@ DURATION_SUMS: Counter[tuple[str, str]] = Counter()
 
 def route_path(request: Request) -> str:
     route = request.scope.get("route")
-    return getattr(route, "path", request.url.path)
+    if not route:
+        return "unmatched"
+    return getattr(route, "path", "unmatched")
 
 
 async def metrics_middleware(request: Request, call_next: Callable) -> Response:
