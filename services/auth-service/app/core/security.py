@@ -47,7 +47,9 @@ def issue_token(user: dict[str, Any]) -> str:
         "exp": now + settings.TOKEN_TTL_SECONDS,
     }
     body = _b64url(json.dumps(payload, separators=(",", ":")).encode())
-    signature = hmac.new(settings.JWT_SECRET.encode(), body.encode(), hashlib.sha256).digest()
+    signature = hmac.new(
+        settings.JWT_SECRET.encode(), body.encode(), hashlib.sha256
+    ).digest()
     return f"{body}.{_b64url(signature)}"
 
 
@@ -55,13 +57,21 @@ def verify_token(token: str) -> dict[str, Any]:
     try:
         body, signature = token.split(".", 1)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        ) from exc
 
-    expected = _b64url(hmac.new(settings.JWT_SECRET.encode(), body.encode(), hashlib.sha256).digest())
+    expected = _b64url(
+        hmac.new(settings.JWT_SECRET.encode(), body.encode(), hashlib.sha256).digest()
+    )
     if not hmac.compare_digest(signature, expected):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
     payload = json.loads(_unb64url(body))
     if int(payload.get("exp", 0)) < int(time.time()):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+        )
     return payload
