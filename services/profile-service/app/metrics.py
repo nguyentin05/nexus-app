@@ -51,27 +51,40 @@ def render_metrics(service: str, version: str) -> str:
     lines = [
         "# HELP nexus_app_info Application build information.",
         "# TYPE nexus_app_info gauge",
-        f'nexus_app_info{{{labels(service=service, version=version)}}} 1',
+        f"nexus_app_info{{{labels(service=service, version=version)}}} 1",
         "# HELP nexus_http_requests_total Total HTTP requests.",
         "# TYPE nexus_http_requests_total counter",
     ]
 
     for (method, path, status), count in sorted(REQUESTS.items()):
         lines.append(
-            f'nexus_http_requests_total{{{labels(method=method, path=path, status=status)}}} {count}'
+            f"nexus_http_requests_total{{{labels(method=method, path=path, status=status)}}} {count}"
         )
 
-    lines.extend([
-        "# HELP nexus_http_request_duration_seconds HTTP request duration in seconds.",
-        "# TYPE nexus_http_request_duration_seconds histogram",
-    ])
-    for (method, path, le), count in sorted(DURATION_BUCKETS.items(), key=lambda item: (item[0][0], item[0][1], float(item[0][2]) if item[0][2] != "+Inf" else float("inf"))):
+    lines.extend(
+        [
+            "# HELP nexus_http_request_duration_seconds HTTP request duration in seconds.",
+            "# TYPE nexus_http_request_duration_seconds histogram",
+        ]
+    )
+    for (method, path, le), count in sorted(
+        DURATION_BUCKETS.items(),
+        key=lambda item: (
+            item[0][0],
+            item[0][1],
+            float(item[0][2]) if item[0][2] != "+Inf" else float("inf"),
+        ),
+    ):
         lines.append(
-            f'nexus_http_request_duration_seconds_bucket{{{labels(method=method, path=path, le=le)}}} {count}'
+            f"nexus_http_request_duration_seconds_bucket{{{labels(method=method, path=path, le=le)}}} {count}"
         )
     for (method, path), total in sorted(DURATION_SUMS.items()):
         count = DURATION_BUCKETS[(method, path, "+Inf")]
-        lines.append(f'nexus_http_request_duration_seconds_count{{{labels(method=method, path=path)}}} {count}')
-        lines.append(f'nexus_http_request_duration_seconds_sum{{{labels(method=method, path=path)}}} {total:.6f}')
+        lines.append(
+            f"nexus_http_request_duration_seconds_count{{{labels(method=method, path=path)}}} {count}"
+        )
+        lines.append(
+            f"nexus_http_request_duration_seconds_sum{{{labels(method=method, path=path)}}} {total:.6f}"
+        )
 
     return "\n".join(lines) + "\n"

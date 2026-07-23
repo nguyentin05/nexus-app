@@ -32,7 +32,10 @@ def consume_user_events() -> None:
                 body = json.loads(message["Body"])
                 if body.get("type") == "UserRegistered":
                     upsert_profile(body["user_id"], body["email"], body["display_name"])
-                client.delete_message(QueueUrl=settings.USER_EVENTS_QUEUE_URL, ReceiptHandle=message["ReceiptHandle"])
+                client.delete_message(
+                    QueueUrl=settings.USER_EVENTS_QUEUE_URL,
+                    ReceiptHandle=message["ReceiptHandle"],
+                )
         except Exception:
             LOGGER.exception("failed to consume user event")
             time.sleep(5)
