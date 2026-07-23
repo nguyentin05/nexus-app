@@ -16,7 +16,9 @@ def me(user: dict[str, Any] = Depends(current_user)) -> ProfileResponse:
 
 
 @router.patch("/me", response_model=ProfileResponse)
-def update_me(payload: UpdateProfileRequest, user: dict[str, Any] = Depends(current_user)) -> ProfileResponse:
+def update_me(
+    payload: UpdateProfileRequest, user: dict[str, Any] = Depends(current_user)
+) -> ProfileResponse:
     return ProfileResponse(**update_profile(user, payload))
 
 
@@ -27,6 +29,9 @@ async def upload_avatar(
 ) -> ProfileResponse:
     contents = await file.read()
     if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Avatar must be <= 5 MiB")
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Avatar must be <= 5 MiB",
+        )
     avatar_url = upload_to_cloudinary(file, contents)
     return ProfileResponse(**update_avatar_url(user, avatar_url))

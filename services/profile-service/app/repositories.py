@@ -38,7 +38,9 @@ def get_profile(user: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def update_profile(user: dict[str, Any], payload: UpdateProfileRequest) -> dict[str, Any]:
+def update_profile(
+    user: dict[str, Any], payload: UpdateProfileRequest
+) -> dict[str, Any]:
     profile = get_profile(user)
     with db_cursor() as cur:
         cur.execute(

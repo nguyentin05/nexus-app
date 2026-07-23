@@ -16,3 +16,15 @@ dependencies = [
 dev = [
     "pytest>=8.4.0",
 ]
+
+[tool.semantic_release]
+commit_parser = "conventional-monorepo"
+commit_message = "chore(release): profile-service-v{version} [skip ci]"
+tag_format = "profile-service-v{version}"
+version_toml = ["pyproject.toml:project.version"]
+
+[tool.semantic_release.commit_parser_options]
+path_filters = ["."]
+scope_prefix = "profile"
+patch_tags = ["fix", "perf", "deps"]
+allowed_tags = ["feat", "fix", "perf", "deps", "build", "chore", "ci", "docs", "style", "refactor", "test"]
