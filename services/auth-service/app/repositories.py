@@ -18,11 +18,18 @@ def create_user(payload: RegisterRequest) -> dict[str, Any]:
                 values (%s, %s, %s, %s)
                 returning id::text, email, display_name
                 """,
-                (user_id, payload.email.lower(), payload.display_name, hash_password(payload.password)),
+                (
+                    user_id,
+                    payload.email.lower(),
+                    payload.display_name,
+                    hash_password(payload.password),
+                ),
             )
         except Exception as exc:
             if "duplicate" in str(exc).lower() or "unique" in str(exc).lower():
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists") from exc
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT, detail="Email already exists"
+                ) from exc
             raise
         return cur.fetchone()
 
