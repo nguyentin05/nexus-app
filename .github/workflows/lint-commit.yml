@@ -27,8 +27,8 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          if git log --format=%s "$BASE_SHA"..HEAD | grep -Eq '^[a-z]+\([^)]*(auth|profile)[^)]*,[^)]*(auth|profile)[^)]*\)!?:'; then
-            echo "Use one service scope per commit; split auth/profile changes into separate commits."
+          if git log --format=%s "$BASE_SHA"..HEAD | grep -Eq '^[a-z]+\([^)]*(auth|profile|cicd)[^)]*,[^)]*(auth|profile|cicd)[^)]*\)!?:'; then
+            echo "Use one service scope per commit; split auth/profile/cicd changes into separate commits."
             exit 1
           fi
 
@@ -39,5 +39,5 @@ jobs:
           message_file="$RUNNER_TEMP/commit-message"
           while read -r commit; do
             git show --quiet --format=%B "$commit" > "$message_file"
-            .lefthook/commit-msg/lint.sh "$message_file"
+            bash .lefthook/commit-msg/lint.sh "$message_file"
           done < <(git rev-list --reverse "$BASE_SHA"..HEAD)
