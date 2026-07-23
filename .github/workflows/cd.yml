@@ -1,0 +1,279 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Application CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: application-release
+  cancel-in-progress: false
+
+jobs:
+  version-services:
+    name: Prepare service release (${{ matrix.service }})
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [auth-service, profile-service]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate source commit
+        env:
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$VALIDATED_SHA"
+          git reset --hard "$VALIDATED_SHA"
+
+      - name: Python Semantic Release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v10.6.1
+        with:
+          changelog: true
+          commit: true
+          directory: services/${{ matrix.service }}
+          git_committer_email: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
+          git_committer_name: nexus-cicd-bot
+          github_token: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          push: false
+          vcs_release: false
+
+      - name: Export release artifacts
+        env:
+          SERVICE: ${{ matrix.service }}
+          RELEASED: ${{ steps.release.outputs.released || 'false' }}
+          VERSION: ${{ steps.release.outputs.version }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          mkdir -p ".release/$SERVICE"
+          jq -n \
+            --arg service "$SERVICE" \
+            --argjson released "$RELEASED" \
+            --arg version "$VERSION" \
+            --arg tag "$TAG" \
+            '{service: $service, released: $released, version: $version, tag: $tag}' \
+            > ".release/$SERVICE/metadata.json"
+          if [ "$RELEASED" = true ]; then
+            git format-patch -1 --stdout > ".release/$SERVICE/release.patch"
+          fi
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: service-release-${{ matrix.service }}
+          path: .release/${{ matrix.service }}
+          retention-days: 1
+
+  finalize-release:
+    name: Create repository release
+    needs: version-services
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    outputs:
+      any_service_released: ${{ steps.services.outputs.any }}
+      publish_matrix: ${{ steps.services.outputs.matrix }}
+      release_commit: ${{ steps.state.outputs.commit }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+
+      - name: Validate source commit
+        env:
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$VALIDATED_SHA"
+          git reset --hard "$VALIDATED_SHA"
+
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          pattern: service-release-*
+          path: .releases
+
+      - name: Apply service release changes
+        id: services
+        run: |
+          matrix='{"include":[]}'
+          for metadata in .releases/service-release-*/metadata.json; do
+            if [ "$(jq -r '.released' "$metadata")" != true ]; then
+              continue
+            fi
+            release_dir="$(dirname "$metadata")"
+            service="$(jq -r '.service' "$metadata")"
+            version="$(jq -r '.version' "$metadata")"
+            git apply "$release_dir/release.patch"
+            matrix="$(jq -c \
+              --arg service "$service" \
+              --arg version "$version" \
+              '.include += [{service: $service, version: $version}]' \
+              <<< "$matrix")"
+          done
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "any=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install release tools
+        run: npm install --global semantic-release @semantic-release/changelog @semantic-release/git conventional-changelog-conventionalcommits
+
+      - name: Create repository release
+        env:
+          GITHUB_TOKEN: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          GIT_AUTHOR_EMAIL: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
+          GIT_AUTHOR_NAME: nexus-cicd-bot
+          GIT_COMMITTER_EMAIL: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
+          GIT_COMMITTER_NAME: nexus-cicd-bot
+        run: semantic-release
+
+      - name: Create service tags
+        if: steps.services.outputs.any == 'true'
+        run: |
+          test -z "$(git status --porcelain -- CHANGELOG.md 'services/*/CHANGELOG.md' 'services/*/pyproject.toml')"
+          tags=()
+          for metadata in .releases/service-release-*/metadata.json; do
+            if [ "$(jq -r '.released' "$metadata")" = true ]; then
+              tag="$(jq -r '.tag' "$metadata")"
+              git tag "$tag"
+              tags+=("$tag")
+            fi
+          done
+          git push origin "${tags[@]}"
+
+      - name: Export release state
+        id: state
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish container image (${{ matrix.service }} ${{ matrix.version }})
+    needs: finalize-release
+    if: needs.finalize-release.outputs.any_service_released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.finalize-release.outputs.publish_matrix) }}
+    env:
+      AWS_REGION: ap-southeast-1
+      IMAGE_TAG: v${{ matrix.version }}
+      REPOSITORY: nexus-${{ matrix.service }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.finalize-release.outputs.release_commit }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
+          role-session-name: nexus-app-release
+
+      - name: Validate immutable image tags
+        run: test "$(aws ecr describe-repositories --repository-names "$REPOSITORY" --query 'repositories[0].imageTagMutability' --output text)" = IMMUTABLE
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker Setup Buildx
+        uses: docker/setup-buildx-action@v4.2.0
+
+      - name: Build and push Docker images
+        id: image
+        uses: docker/build-push-action@v7.3.0
+        with:
+          context: services/${{ matrix.service }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Anchore SBOM Action
+        uses: anchore/sbom-action@v0.24.0
+        with:
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}@${{ steps.image.outputs.digest }}
+          format: spdx-json
+          output-file: sbom-${{ matrix.service }}.spdx.json
+          upload-release-assets: false
+
+      - name: cosign-installer
+        uses: sigstore/cosign-installer@v4.1.2
+
+      - name: Sign image and attest SBOM
+        env:
+          IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}@${{ steps.image.outputs.digest }}
+        run: |
+          cosign sign --yes "$IMAGE"
+          cosign attest --yes --type spdxjson --predicate "sbom-${{ matrix.service }}.spdx.json" "$IMAGE"
+
+  update-gitops:
+    name: Create GitOps PR (${{ matrix.service }} ${{ matrix.version }})
+    needs: [finalize-release, publish]
+    if: needs.finalize-release.outputs.any_service_released == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.finalize-release.outputs.publish_matrix) }}
+    env:
+      IMAGE_TAG: v${{ matrix.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: nguyentin05/nexus-gitops
+          ref: main
+          token: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          path: gitops
+
+      - name: Update GitOps chart values
+        uses: mikefarah/yq@v4.53.3
+        with:
+          cmd: yq -i '.image.tag = "${{ env.IMAGE_TAG }}"' gitops/charts/${{ matrix.service }}/values-dev.yaml
+
+      - name: Create GitOps update PR
+        working-directory: gitops
+        env:
+          BOT_EMAIL: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
+          GH_TOKEN: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          RELEASE_SHA: ${{ needs.finalize-release.outputs.release_commit }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          branch="chore/update-$SERVICE-${IMAGE_TAG//./-}"
+          git config user.name "nexus-cicd-bot"
+          git config user.email "$BOT_EMAIL"
+          git switch -c "$branch"
+          git add "charts/$SERVICE/values-dev.yaml"
+          git commit -m "chore($SERVICE): update image to $IMAGE_TAG"
+          git push origin "$branch"
+          gh pr create --repo nguyentin05/nexus-gitops --base main --head "$branch" --title "chore($SERVICE): update image to $IMAGE_TAG" --body "Automated promotion from nexus-app release commit $RELEASE_SHA."
