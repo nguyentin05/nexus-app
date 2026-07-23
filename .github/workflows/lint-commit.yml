@@ -1,0 +1,44 @@
+name: Commit validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: app-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-commits:
+    name: Validate commit messages
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Reject multi-service scopes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if git log --format=%s "$BASE_SHA"..HEAD | grep -Eq '^[a-z]+\([^)]*(auth|profile|cicd)[^)]*,[^)]*(auth|profile|cicd)[^)]*\)!?:'; then
+            echo "Use one service scope per commit; split auth/profile/cicd changes into separate commits."
+            exit 1
+          fi
+
+      - name: Validate Conventional Commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          message_file="$RUNNER_TEMP/commit-message"
+          while read -r commit; do
+            git show --quiet --format=%B "$commit" > "$message_file"
+            bash .lefthook/commit-msg/lint.sh "$message_file"
+          done < <(git rev-list --reverse "$BASE_SHA"..HEAD)
