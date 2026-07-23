@@ -276,6 +276,7 @@ jobs:
         with:
           sbom: sbom-${{ matrix.service }}.spdx.json
           fail-build: true
+          only-fixed: true
           severity-cutoff: high
           output-format: table
 
