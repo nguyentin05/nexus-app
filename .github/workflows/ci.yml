@@ -49,8 +49,13 @@ jobs:
               if $profile then {service: "profile-service"} else empty end
             ]}
           ')"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "any=$([[ "$matrix" == '{\"include\":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+          if [ "$matrix" = '{"include":[]}' ]; then
+            echo 'matrix={"include":[{"service":"none"}]}' >> "$GITHUB_OUTPUT"
+            echo "any=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          fi
 
   format-code:
     name: Format changed services
