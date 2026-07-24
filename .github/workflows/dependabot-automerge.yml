@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
     steps:
       - name: Fetch Metadata from Dependabot PRs
         id: metadata
@@ -24,21 +24,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for patch updates
-        id: auto-merge
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
         env:
-          GH_TOKEN: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --squash --subject "$PR_TITLE" --body "Automated patch dependency update." "$PR_URL"
 
       - name: Request review for minor and major updates
-        id: request-review
         if: >-
           steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
           steps.metadata.outputs.update-type == 'version-update:semver-major'
         env:
-          GH_TOKEN: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           REPO_OWNER: ${{ github.repository_owner }}
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
