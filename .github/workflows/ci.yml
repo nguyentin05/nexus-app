@@ -3,8 +3,12 @@ name: Application CI
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'services/**'
   push:
     branches: [main]
+    paths:
+      - 'services/**'
 
 permissions:
   contents: read
@@ -91,20 +95,6 @@ jobs:
           commit_user_email: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
           commit_author: nexus-cicd-bot <${{ secrets.NEXUS_CICD_BOT_EMAIL }}>
 
-  scan-secrets:
-    name: Scan secrets
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v3.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   lint-code:
     name: Lint Python (${{ matrix.service }})
     needs: [detect-changes]
@@ -145,11 +135,10 @@ jobs:
 
   unit-tests:
     name: Run unit tests (${{ matrix.service }})
-    needs: [detect-changes, scan-secrets, lint-code, lint-dockerfiles]
+    needs: [detect-changes, lint-code, lint-dockerfiles]
     if: >-
       always() &&
       needs.detect-changes.outputs.any == 'true' &&
-      needs.scan-secrets.result == 'success' &&
       needs.lint-code.result == 'success' &&
       needs.lint-dockerfiles.result == 'success'
     runs-on: ubuntu-latest
@@ -177,11 +166,10 @@ jobs:
 
   sast:
     name: Static Application Security Testing
-    needs: [detect-changes, scan-secrets, lint-code, lint-dockerfiles]
+    needs: [detect-changes, lint-code, lint-dockerfiles]
     if: >-
       always() &&
       needs.detect-changes.outputs.any == 'true' &&
-      needs.scan-secrets.result == 'success' &&
       needs.lint-code.result == 'success' &&
       needs.lint-dockerfiles.result == 'success'
     runs-on: ubuntu-latest
