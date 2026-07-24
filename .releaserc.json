@@ -120,7 +120,8 @@
         "assets": [
           "CHANGELOG.md",
           "services/*/CHANGELOG.md",
-          "services/*/pyproject.toml"
+          "services/*/pyproject.toml",
+          "services/*/uv.lock"
         ],
         "message": "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
