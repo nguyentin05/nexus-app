@@ -5,8 +5,8 @@ from fastapi import FastAPI, Request, Response
 from app.api.router import api_router
 from app.core.config import settings
 from app.core.db import init_schema
-from app.metrics import metrics_middleware
 from app.events import start_consumer, stop_consumer
+from app.metrics import metrics_middleware
 
 LOGGER = logging.getLogger("profile-service")
 
