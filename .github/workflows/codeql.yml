@@ -19,7 +19,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4.37.2
         with:
-          languages: python
+          languages: python, actions
           build-mode: none
           queries: security-extended
 
