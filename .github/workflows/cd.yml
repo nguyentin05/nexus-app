@@ -114,6 +114,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
 
+      - name: astral-sh/setup-uv
+        uses: astral-sh/setup-uv@v9.0.0
+
       - name: Validate source commit
         env:
           VALIDATED_SHA: ${{ github.sha }}
@@ -140,6 +143,7 @@ jobs:
             service="$(jq -r '.service' "$metadata")"
             version="$(jq -r '.version' "$metadata")"
             git apply "$release_dir/release.patch"
+            uv lock --directory "services/$service"
             matrix="$(jq -c \
               --arg service "$service" \
               --arg version "$version" \
@@ -169,7 +173,7 @@ jobs:
       - name: Create service tags
         if: steps.services.outputs.any == 'true'
         run: |
-          test -z "$(git status --porcelain -- CHANGELOG.md 'services/*/CHANGELOG.md' 'services/*/pyproject.toml')"
+          test -z "$(git status --porcelain -- CHANGELOG.md 'services/*/CHANGELOG.md' 'services/*/pyproject.toml' 'services/*/uv.lock')"
           tags=()
           for metadata in .releases/service-release-*/metadata.json; do
             if [ "$(jq -r '.released' "$metadata")" = true ]; then
