@@ -3,6 +3,10 @@ name: Application CI
 on:
   workflow_call:
     inputs:
+      allow_format:
+        default: true
+        required: false
+        type: boolean
       matrix:
         description: Changed service matrix
         required: true
@@ -14,6 +18,7 @@ jobs:
   format-code:
     name: Format changed services
     if: >-
+      inputs.allow_format && 
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
