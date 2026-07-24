@@ -66,8 +66,8 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/lint-action.yml
 
-  application-ci:
-    name: Validate application
+  app-ci:
+    name: Application CI
     needs: detect-changes
     if: needs.detect-changes.outputs.services == 'true'
     permissions:
@@ -82,14 +82,14 @@ jobs:
 
   merge-gate:
     name: Merge gate
-    needs: [detect-changes, scan-secrets, lint-actions, application-ci]
+    needs: [detect-changes, scan-secrets, lint-actions, app-ci]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Verify required checks
         id: verify
         env:
-          APPLICATION_RESULT: ${{ needs.application-ci.result }}
+          APPLICATION_RESULT: ${{ needs.app-ci.result }}
           DETECT_RESULT: ${{ needs.detect-changes.result }}
           LINT_ACTIONS_RESULT: ${{ needs.lint-actions.result }}
           SCAN_SECRETS_RESULT: ${{ needs.scan-secrets.result }}
