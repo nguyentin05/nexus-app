@@ -1,0 +1,106 @@
+name: Pull request gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      services: ${{ steps.matrix.outputs.services }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Paths Changes Filter
+        id: filter
+        uses: dorny/paths-filter@v4.0.2
+        with:
+          filters: |
+            auth:
+              - 'services/auth-service/**'
+            profile:
+              - 'services/profile-service/**'
+            workflows:
+              - '.github/workflows/**'
+
+      - name: Generate service matrix
+        id: matrix
+        env:
+          AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
+          PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
+        run: |
+          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
+            {include: [
+              if $auth then {service: "auth-service"} else empty end,
+              if $profile then {service: "profile-service"} else empty end
+            ]}
+          ')"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "services=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+  scan-secrets:
+    name: Scan secrets
+    uses: ./.github/workflows/scan-secret.yml
+    secrets: inherit
+
+  lint-actions:
+    name: Lint GitHub Actions
+    needs: detect-changes
+    if: needs.detect-changes.outputs.workflows == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/lint-action.yml
+
+  application-ci:
+    name: Validate application
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services == 'true'
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: read
+      security-events: write
+    uses: ./.github/workflows/ci.yml
+    with:
+      matrix: ${{ needs.detect-changes.outputs.matrix }}
+    secrets: inherit
+
+  merge-gate:
+    name: Merge gate
+    needs: [detect-changes, scan-secrets, lint-actions, application-ci]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required checks
+        id: verify
+        env:
+          APPLICATION_RESULT: ${{ needs.application-ci.result }}
+          DETECT_RESULT: ${{ needs.detect-changes.result }}
+          LINT_ACTIONS_RESULT: ${{ needs.lint-actions.result }}
+          SCAN_SECRETS_RESULT: ${{ needs.scan-secrets.result }}
+          SERVICES_CHANGED: ${{ needs.detect-changes.outputs.services }}
+          WORKFLOWS_CHANGED: ${{ needs.detect-changes.outputs.workflows }}
+        run: |
+          test "$DETECT_RESULT" = success
+          test "$SCAN_SECRETS_RESULT" = success
+          if [ "$SERVICES_CHANGED" = true ]; then
+            test "$APPLICATION_RESULT" = success
+          fi
+          if [ "$WORKFLOWS_CHANGED" = true ]; then
+            test "$LINT_ACTIONS_RESULT" = success
+          fi

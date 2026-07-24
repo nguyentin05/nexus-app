@@ -1,64 +1,23 @@
 name: Application CI
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  workflow_call:
+    inputs:
+      matrix:
+        description: Changed service matrix
+        required: true
+        type: string
 
 permissions:
   contents: read
   pull-requests: read
 
-concurrency:
-  group: app-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  detect-changes:
-    name: Detect changed services
-    runs-on: ubuntu-latest
-    outputs:
-      any: ${{ steps.matrix.outputs.any }}
-      matrix: ${{ steps.matrix.outputs.matrix }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-
-      - name: Paths Changes Filter
-        id: filter
-        uses: dorny/paths-filter@v4.0.2
-        with:
-          filters: |
-            auth:
-              - 'services/auth-service/**'
-              - '.github/workflows/ci.yml'
-            profile:
-              - 'services/profile-service/**'
-              - '.github/workflows/ci.yml'
-
-      - name: Generate service matrix
-        id: matrix
-        env:
-          AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
-          PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
-        run: |
-          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
-            {include: [
-              if $auth then {service: "auth-service"} else empty end,
-              if $profile then {service: "profile-service"} else empty end
-            ]}
-          ')"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "any=$([[ "$matrix" == '{\"include\":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
-
   format-code:
     name: Format changed services
-    needs: detect-changes
     if: >-
-      github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.detect-changes.outputs.any == 'true'
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,7 +33,7 @@ jobs:
 
       - name: Format Python code
         env:
-          MATRIX: ${{ needs.detect-changes.outputs.matrix }}
+          MATRIX: ${{ inputs.matrix }}
         run: |
           while read -r service; do
             uvx ruff format "services/$service"
@@ -88,29 +47,11 @@ jobs:
           commit_user_email: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
           commit_author: nexus-cicd-bot <${{ secrets.NEXUS_CICD_BOT_EMAIL }}>
 
-  scan-secrets:
-    name: Scan secrets
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v3.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   lint-code:
     name: Lint Python (${{ matrix.service }})
-    needs: [detect-changes]
-    if: >-
-      always() &&
-      needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.matrix) }}
       fail-fast: false
     steps:
       - name: Checkout
@@ -123,13 +64,9 @@ jobs:
 
   lint-dockerfiles:
     name: Lint Dockerfile (${{ matrix.service }})
-    needs: [detect-changes]
-    if: >-
-      always() &&
-      needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.matrix) }}
       fail-fast: false
     steps:
       - name: Checkout
@@ -142,16 +79,14 @@ jobs:
 
   unit-tests:
     name: Run unit tests (${{ matrix.service }})
-    needs: [detect-changes, scan-secrets, lint-code, lint-dockerfiles]
+    needs: [lint-code, lint-dockerfiles]
     if: >-
       always() &&
-      needs.detect-changes.outputs.any == 'true' &&
-      needs.scan-secrets.result == 'success' &&
       needs.lint-code.result == 'success' &&
       needs.lint-dockerfiles.result == 'success'
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.matrix) }}
       fail-fast: false
     defaults:
       run:
@@ -174,11 +109,9 @@ jobs:
 
   sast:
     name: Static Application Security Testing
-    needs: [detect-changes, scan-secrets, lint-code, lint-dockerfiles]
+    needs: [lint-code, lint-dockerfiles]
     if: >-
       always() &&
-      needs.detect-changes.outputs.any == 'true' &&
-      needs.scan-secrets.result == 'success' &&
       needs.lint-code.result == 'success' &&
       needs.lint-dockerfiles.result == 'success'
     runs-on: ubuntu-latest
@@ -201,16 +134,15 @@ jobs:
 
   build:
     name: Build container image (${{ matrix.service }})
-    needs: [detect-changes, unit-tests, sast]
+    needs: [unit-tests, sast]
     if: >-
       always() &&
-      needs.detect-changes.outputs.any == 'true' &&
       needs.unit-tests.result == 'success' &&
       needs.sast.result == 'success'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -240,15 +172,14 @@ jobs:
 
   validate-image:
     name: Validate container image (${{ matrix.service }})
-    needs: [detect-changes, build]
+    needs: build
     if: >-
       always() &&
-      needs.detect-changes.outputs.any == 'true' &&
       needs.build.result == 'success'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.matrix) }}
     env:
       IMAGE: local/nexus-${{ matrix.service }}:${{ github.sha }}
       CONTAINER: nexus-smoke-${{ matrix.service }}
