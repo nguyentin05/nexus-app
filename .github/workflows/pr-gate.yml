@@ -4,9 +4,7 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: read
+permissions: {}
 
 concurrency:
   group: pr-gate-${{ github.event.pull_request.number }}
@@ -15,55 +13,24 @@ concurrency:
 jobs:
   detect-changes:
     name: Detect changes
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
-      services: ${{ steps.matrix.outputs.services }}
-      workflows: ${{ steps.filter.outputs.workflows }}
-    steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v7.0.1
-
-      - name: Paths Changes Filter
-        id: filter
-        uses: dorny/paths-filter@v4.0.2
-        with:
-          filters: |
-            auth:
-              - 'services/auth-service/**'
-            profile:
-              - 'services/profile-service/**'
-            workflows:
-              - '.github/workflows/**'
-
-      - name: Generate service matrix
-        id: matrix
-        env:
-          AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
-          PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
-        run: |
-          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
-            {include: [
-              if $auth then {service: "auth-service"} else empty end,
-              if $profile then {service: "profile-service"} else empty end
-            ]}
-          ')"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "services=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
 
   scan-secrets:
     name: Scan secrets
+    permissions:
+      contents: read
     uses: ./.github/workflows/scan-secret.yml
-    secrets: inherit
 
   lint-actions:
     name: Lint GitHub Actions
-    needs: detect-changes
-    if: needs.detect-changes.outputs.workflows == 'true'
     permissions:
       contents: read
       pull-requests: write
+    needs: detect-changes
+    if: needs.detect-changes.outputs.workflows == 'true'
     uses: ./.github/workflows/lint-action.yml
 
   app-ci:
@@ -85,6 +52,7 @@ jobs:
     needs: [detect-changes, scan-secrets, lint-actions, app-ci]
     if: always()
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Verify required checks
         id: verify
