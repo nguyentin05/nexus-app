@@ -32,10 +32,8 @@ jobs:
           filters: |
             auth:
               - 'services/auth-service/**'
-              - '.github/workflows/ci.yml'
             profile:
               - 'services/profile-service/**'
-              - '.github/workflows/ci.yml'
 
       - name: Generate service matrix
         id: matrix
