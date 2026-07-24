@@ -14,7 +14,7 @@ jobs:
       github.repository == 'nguyentin05/nexus-app'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - name: Fetch Metadata from Dependabot PRs
