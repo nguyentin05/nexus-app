@@ -6,20 +6,39 @@ on:
     paths:
       - 'services/**'
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: application-release
   cancel-in-progress: false
 
 jobs:
+  detect-changes:
+    name: Detect changed services
+    permissions:
+      contents: read
+    uses: ./.github/workflows/detect-changes.yml
+
+  application-ci:
+    name: Validate application
+    needs: detect-changes
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: ./.github/workflows/ci.yml
+    with:
+      matrix: ${{ needs.detect-changes.outputs.matrix }}
+    secrets: inherit
+
   version-services:
     name: Prepare service release (${{ matrix.service }})
+    needs: [detect-changes, application-ci]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
-      matrix:
-        service: [auth-service, profile-service]
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
       fail-fast: false
     steps:
       - name: Checkout
@@ -233,6 +252,7 @@ jobs:
 
   update-gitops:
     name: Create GitOps PR (${{ matrix.service }} ${{ matrix.version }})
+    permissions: {}
     needs: [finalize-release, publish]
     if: needs.finalize-release.outputs.any_service_released == 'true'
     runs-on: ubuntu-latest

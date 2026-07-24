@@ -1,0 +1,57 @@
+name: Detect changes
+
+on:
+  workflow_call:
+    outputs:
+      matrix:
+        value: ${{ jobs.detect.outputs.matrix }}
+      services:
+        value: ${{ jobs.detect.outputs.services }}
+      workflows:
+        value: ${{ jobs.detect.outputs.workflows }}
+
+permissions: {}
+
+jobs:
+  detect:
+    name: Detect file changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      services: ${{ steps.matrix.outputs.services }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Paths Changes Filter
+        id: filter
+        uses: dorny/paths-filter@v4.0.2
+        with:
+          filters: |
+            auth:
+              - 'services/auth-service/**'
+            profile:
+              - 'services/profile-service/**'
+            workflows:
+              - '.github/workflows/**'
+
+      - name: Generate service matrix
+        id: matrix
+        env:
+          AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
+          PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
+        run: |
+          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
+            {include: [
+              if $auth then {service: "auth-service"} else empty end,
+              if $profile then {service: "profile-service"} else empty end
+            ]}
+          ')"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "services=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"

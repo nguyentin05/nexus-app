@@ -4,9 +4,7 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: read
+permissions: {}
 
 jobs:
   enable-auto-merge:
@@ -15,6 +13,9 @@ jobs:
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.repository == 'nguyentin05/nexus-app'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Fetch Metadata from Dependabot PRs
         id: metadata

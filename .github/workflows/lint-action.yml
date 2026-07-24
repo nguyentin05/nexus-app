@@ -3,19 +3,18 @@ name: Lint GitHub Actions
 on:
   workflow_call:
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   lint-actions:
     name: Lint GitHub Actions
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v7.0.1
 
       - name: Rhysd actionlint
-        id: actionlint
-        uses: devops-actions/actionlint@9fb9c192862f19e684586ca84b500461bcd8a541 # v0.1.12
+        uses: devops-actions/actionlint@v0.1.12
