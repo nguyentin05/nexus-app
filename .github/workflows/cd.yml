@@ -1,9 +1,10 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: [Application CI]
-    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - 'services/**'
 
 permissions:
   contents: read
@@ -15,10 +16,6 @@ concurrency:
 jobs:
   version-services:
     name: Prepare service release (${{ matrix.service }})
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,7 +31,7 @@ jobs:
 
       - name: Validate source commit
         env:
-          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VALIDATED_SHA: ${{ github.sha }}
         run: |
           git fetch origin main --tags
           test "$(git rev-parse origin/main)" = "$VALIDATED_SHA"
@@ -100,7 +97,7 @@ jobs:
 
       - name: Validate source commit
         env:
-          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VALIDATED_SHA: ${{ github.sha }}
         run: |
           git fetch origin main --tags
           test "$(git rev-parse origin/main)" = "$VALIDATED_SHA"
