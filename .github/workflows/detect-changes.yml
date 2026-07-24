@@ -2,6 +2,11 @@ name: Detect changes
 
 on:
   workflow_call:
+    inputs:
+      force_all_services:
+        default: false
+        required: false
+        type: boolean
     outputs:
       matrix:
         value: ${{ jobs.detect.outputs.matrix }}
@@ -45,13 +50,18 @@ jobs:
         id: matrix
         env:
           AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
+          FORCE_ALL_SERVICES: ${{ inputs.force_all_services }}
           PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
         run: |
-          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
-            {include: [
-              if $auth then {service: "auth-service"} else empty end,
-              if $profile then {service: "profile-service"} else empty end
-            ]}
-          ')"
+          if [ "$FORCE_ALL_SERVICES" = true ]; then
+            matrix='{"include":[{"service":"auth-service"},{"service":"profile-service"}]}'
+          else
+            matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
+              {include: [
+                if $auth then {service: "auth-service"} else empty end,
+                if $profile then {service: "profile-service"} else empty end
+              ]}
+            ')"
+          fi
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "services=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
