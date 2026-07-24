@@ -30,3 +30,17 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --squash --subject "$PR_TITLE" --body "Automated patch dependency update." "$PR_URL"
+
+      - name: Request review for minor and major updates
+        id: request-review
+        if: >-
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ secrets.NEXUS_CICD_BOT_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+        run: |
+          short_type="${UPDATE_TYPE#version-update:semver-}"
+          gh pr comment "$PR_URL" --body "Hey @$REPO_OWNER, this PR contains a **$short_type** update (non-patch). Auto-merge was skipped. Please review and merge it manually when the test checks are green."
