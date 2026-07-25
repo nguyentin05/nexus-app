@@ -11,7 +11,7 @@ def test_health() -> None:
 def test_root() -> None:
     response = TestClient(app).get("/")
     assert response.status_code == 200
-    assert response.json() == {"service": "profile-service", "status": "hello"}
+    assert response.json() == {"service": "profile-service", "status": "hello world"}
 
 
 def test_metrics() -> None:
