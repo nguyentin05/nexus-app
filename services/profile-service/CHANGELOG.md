@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-07-25)
+
+### Bug Fixes
+
+- **cicd**: Synchronize service lockfiles during release
+  ([`3cb82a8`](https://github.com/nguyentin05/nexus-app/commit/3cb82a82113def7f5081f012c16bec01e83b1b72))
+
+### Deps
+
+- Bump boto3 from 1.43.46 to 1.43.55 in /services/profile-service in the profile-dependencies group
+  across 1 directory
+  ([`dc6ee21`](https://github.com/nguyentin05/nexus-app/commit/dc6ee21da1703e3c0df6a2f38ef352b16f32a853))
+
+- Update fastapi[standard] requirement from >=0.139.0 to >=0.139.2 in /services/profile-service
+  ([`cb1428f`](https://github.com/nguyentin05/nexus-app/commit/cb1428f996a0654408964406dc63eef93dfca9d9))
+
+### Refactoring
+
+- Resolve Ruff violations
+  ([`367d44c`](https://github.com/nguyentin05/nexus-app/commit/367d44c7e4d29dd90fa2cf3dd7ad060e7b6628dc))
+
+
 ## v0.1.1 (2026-07-23)
 
 ### Bug Fixes

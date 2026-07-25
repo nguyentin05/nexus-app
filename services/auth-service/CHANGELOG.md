@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-07-25)
+
+### Bug Fixes
+
+- **cicd**: Synchronize service lockfiles during release
+  ([`3cb82a8`](https://github.com/nguyentin05/nexus-app/commit/3cb82a82113def7f5081f012c16bec01e83b1b72))
+
+### Refactoring
+
+- Resolve Ruff violations
+  ([`14c1b13`](https://github.com/nguyentin05/nexus-app/commit/14c1b13d78128f41777e4eeb6cd9b3842748b6fb))
+
+
 ## v0.1.1 (2026-07-23)
 
 ### Bug Fixes
