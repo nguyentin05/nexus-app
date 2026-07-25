@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.1.3 (2026-07-25)
+
+### Bug Fixes
+
+- E2e testing profile service
+  ([`9d7eaf9`](https://github.com/nguyentin05/nexus-app/commit/9d7eaf9794e2bf17cc7eaa2fb1913c905bdd68d4))
+
+- Fix unit test profile service
+  ([`2da638e`](https://github.com/nguyentin05/nexus-app/commit/2da638e07944d89002dad7cceac1ad522d0f53ac))
+
+
 ## v0.1.2 (2026-07-25)
 
 ### Bug Fixes
