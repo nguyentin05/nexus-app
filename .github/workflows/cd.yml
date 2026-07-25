@@ -243,7 +243,7 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }},ignore-error=true
 
       - name: Anchore SBOM Action
         uses: anchore/sbom-action@v0.24.0

@@ -170,7 +170,7 @@ jobs:
           push: false
           tags: local/nexus-${{ matrix.service }}:${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }},ignore-error=true
 
       - name: Export container image
         run: docker save local/nexus-${{ matrix.service }}:${{ github.sha }} | gzip > image-${{ matrix.service }}.tar.gz
