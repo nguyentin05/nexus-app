@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.3 (2026-07-26)
+
+### Bug Fixes
+
+- Update tags rule for psr
+  ([`3ec0da2`](https://github.com/nguyentin05/nexus-app/commit/3ec0da278fa6db86b2904e1c5391d80dbb0ea02c))
+
+
 ## v0.1.2 (2026-07-25)
 
 ### Bug Fixes

@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.1.4 (2026-07-26)
+
+### Bug Fixes
+
+- E2e test for profile service
+  ([`294ea17`](https://github.com/nguyentin05/nexus-app/commit/294ea17cb1047f72412e83ad265400c7e9b77bae))
+
+- E2e testing on profile service
+  ([`71ce30d`](https://github.com/nguyentin05/nexus-app/commit/71ce30d5e7bdb59ac21f06889f75690d0cc780aa))
+
+- Update tags rule for psr
+  ([`096a865`](https://github.com/nguyentin05/nexus-app/commit/096a865485de82862796d4924eb03d7c8888a18e))
+
+
 ## v0.1.3 (2026-07-25)
 
 ### Bug Fixes
