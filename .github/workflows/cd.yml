@@ -1,9 +1,10 @@
-name: Release
+name: CD
 
 on:
-  pull_request:
+  push:
     branches: [main]
-    types: [closed]
+    paths:
+      - "services/**"
   workflow_dispatch:
 
 permissions: {}
@@ -15,9 +16,7 @@ concurrency:
 jobs:
   detect-changes:
     name: Detect changed services
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main')
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     permissions:
       contents: read
       pull-requests: read
@@ -112,7 +111,6 @@ jobs:
       actions: read
       contents: write
     outputs:
-      any_service_released: ${{ steps.services.outputs.any }}
       publish_matrix: ${{ steps.services.outputs.matrix }}
       release_commit: ${{ steps.state.outputs.commit }}
     steps:
@@ -160,7 +158,6 @@ jobs:
               <<< "$matrix")"
           done
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "any=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
@@ -180,7 +177,6 @@ jobs:
         run: semantic-release
 
       - name: Create service tags
-        if: steps.services.outputs.any == 'true'
         run: |
           test -z "$(git status --porcelain -- CHANGELOG.md 'services/*/CHANGELOG.md' 'services/*/pyproject.toml' 'services/*/uv.lock')"
           tags=()
@@ -191,6 +187,9 @@ jobs:
               tags+=("$tag")
             fi
           done
+          if [ "${#tags[@]}" -eq 0 ]; then
+            exit 0
+          fi
           git push origin "${tags[@]}"
 
       - name: Export release state
@@ -200,7 +199,7 @@ jobs:
   publish:
     name: Publish container image (${{ matrix.service }} ${{ matrix.version }})
     needs: finalize-release
-    if: needs.finalize-release.outputs.any_service_released == 'true'
+    if: needs.finalize-release.outputs.publish_matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -267,7 +266,7 @@ jobs:
     name: Create GitOps PR (${{ matrix.service }} ${{ matrix.version }})
     permissions: {}
     needs: [finalize-release, publish]
-    if: needs.finalize-release.outputs.any_service_released == 'true'
+    if: needs.finalize-release.outputs.publish_matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
