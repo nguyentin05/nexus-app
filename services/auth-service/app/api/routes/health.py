@@ -5,7 +5,7 @@ router = APIRouter(tags=["health"])
 
 @router.get("/")
 def root() -> dict[str, str]:
-    return {"service": "auth-service", "status": "ok"}
+    return {"service": "auth-service", "status": "hello world!"}
 
 
 @router.get("/health")
