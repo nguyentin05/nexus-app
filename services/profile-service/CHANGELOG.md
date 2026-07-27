@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.5 (2026-07-27)
+
+### Bug Fixes
+
+- Credentials db vault and corp setting
+  ([`6412088`](https://github.com/nguyentin05/nexus-app/commit/6412088c60e35589590a9865b8114c991b9eb4d1))
+
+
 ## v0.1.4 (2026-07-26)
 
 ### Bug Fixes
