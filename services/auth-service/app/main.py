@@ -15,7 +15,7 @@ app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 @app.middleware("http")
 async def collect_metrics(request: Request, call_next) -> Response:
     response = await metrics_middleware(request, call_next)
-    response.headers["Cross-Origin-Resource-Policy"] = "same-site"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
     return response
 
 
