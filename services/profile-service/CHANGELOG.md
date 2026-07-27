@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.6 (2026-07-27)
+
+### Deps
+
+- Update fastapi[standard] requirement
+  ([`b8ace81`](https://github.com/nguyentin05/nexus-app/commit/b8ace815ffd2756ff53067eaf0ddd14cc9513d24))
+
+
 ## v0.1.5 (2026-07-27)
 
 ### Bug Fixes
