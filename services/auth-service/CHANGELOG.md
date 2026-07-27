@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.6 (2026-07-27)
+
+### Bug Fixes
+
+- Set corp to some origin
+  ([`89191f7`](https://github.com/nguyentin05/nexus-app/commit/89191f77e208722fe1261a2f56d53585331ab740))
+
+
 ## v0.1.5 (2026-07-27)
 
 ### Bug Fixes
