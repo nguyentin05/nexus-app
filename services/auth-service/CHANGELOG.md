@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.7 (2026-07-27)
+
+### Bug Fixes
+
+- E2e testing auth service
+  ([`b000528`](https://github.com/nguyentin05/nexus-app/commit/b00052852264d187668b2b28e2bc3e2e8141a2f7))
+
+
 ## v0.1.6 (2026-07-27)
 
 ### Bug Fixes
