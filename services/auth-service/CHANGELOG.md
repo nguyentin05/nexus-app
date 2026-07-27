@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.5 (2026-07-27)
+
+### Bug Fixes
+
+- Vault rotate database credential
+  ([`356e4a3`](https://github.com/nguyentin05/nexus-app/commit/356e4a3aba88aae363b9362f666e04d90d813134))
+
+
 ## v0.1.4 (2026-07-26)
 
 ### Bug Fixes
