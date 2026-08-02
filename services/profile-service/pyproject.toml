@@ -1,13 +1,13 @@
 [project]
 name = "profile-service"
-version = "0.1.1"
+version = "0.1.6"
 description = "Nexus microservice"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "boto3>=1.40.0",
+    "boto3>=1.43.55",
     "email-validator>=2.2.0",
-    "fastapi[standard]>=0.139.0",
+    "fastapi[standard]>=0.140.0",
     "psycopg[binary]>=3.2.0",
     "pydantic-settings>=2.10.0",
 ]
@@ -28,5 +28,5 @@ version_toml = ["pyproject.toml:project.version"]
 [tool.semantic_release.commit_parser_options]
 path_filters = ["."]
 scope_prefix = "profile"
-patch_tags = ["fix", "perf", "deps"]
-allowed_tags = ["feat", "fix", "perf", "deps", "build", "chore", "ci", "docs", "style", "refactor", "test"]
+patch_tags = ["fix", "perf", "revert", "deps"]
+allowed_tags = ["feat", "fix", "perf", "revert", "deps", "build", "chore", "ci", "docs", "style", "refactor", "test"]

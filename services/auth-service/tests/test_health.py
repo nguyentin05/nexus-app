@@ -5,13 +5,14 @@ from fastapi.testclient import TestClient
 def test_health() -> None:
     response = TestClient(app).get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {"status": "canary-v3"}
+    assert response.headers["Cross-Origin-Resource-Policy"] == "same-origin"
 
 
 def test_root() -> None:
     response = TestClient(app).get("/")
     assert response.status_code == 200
-    assert response.json() == {"service": "auth-service", "status": "ok"}
+    assert response.json() == {"service": "auth-service", "status": "hello world!"}
 
 
 def test_metrics() -> None:

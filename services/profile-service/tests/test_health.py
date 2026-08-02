@@ -6,12 +6,13 @@ def test_health() -> None:
     response = TestClient(app).get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+    assert response.headers["Cross-Origin-Resource-Policy"] == "same-origin"
 
 
 def test_root() -> None:
     response = TestClient(app).get("/")
     assert response.status_code == 200
-    assert response.json() == {"service": "profile-service", "status": "ok"}
+    assert response.json() == {"service": "profile-service", "status": "hello world 1"}
 
 
 def test_metrics() -> None:

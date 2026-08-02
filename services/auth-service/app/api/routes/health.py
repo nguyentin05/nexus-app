@@ -5,9 +5,9 @@ router = APIRouter(tags=["health"])
 
 @router.get("/")
 def root() -> dict[str, str]:
-    return {"service": "auth-service", "status": "ok"}
+    return {"service": "auth-service", "status": "hello world!"}
 
 
 @router.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "canary-v3"}

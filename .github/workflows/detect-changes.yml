@@ -2,6 +2,15 @@ name: Detect changes
 
 on:
   workflow_call:
+    inputs:
+      force_all_services:
+        default: false
+        required: false
+        type: boolean
+      detect_unreleased_services:
+        default: false
+        required: false
+        type: boolean
     outputs:
       matrix:
         value: ${{ jobs.detect.outputs.matrix }}
@@ -45,13 +54,33 @@ jobs:
         id: matrix
         env:
           AUTH_CHANGED: ${{ steps.filter.outputs.auth }}
+          DETECT_UNRELEASED_SERVICES: ${{ inputs.detect_unreleased_services }}
+          FORCE_ALL_SERVICES: ${{ inputs.force_all_services }}
           PROFILE_CHANGED: ${{ steps.filter.outputs.profile }}
         run: |
-          matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
-            {include: [
-              if $auth then {service: "auth-service"} else empty end,
-              if $profile then {service: "profile-service"} else empty end
-            ]}
-          ')"
+          if [ "$FORCE_ALL_SERVICES" = true ]; then
+            matrix='{"include":[{"service":"auth-service"},{"service":"profile-service"}]}'
+          else
+            if [ "$DETECT_UNRELEASED_SERVICES" = true ]; then
+              auth_tag="$(git tag --list 'auth-service-v*' --sort=-version:refname | head -n 1)"
+              profile_tag="$(git tag --list 'profile-service-v*' --sort=-version:refname | head -n 1)"
+              if [ -z "$auth_tag" ] || ! git diff --quiet "$auth_tag"..HEAD -- services/auth-service; then
+                AUTH_CHANGED=true
+              else
+                AUTH_CHANGED=false
+              fi
+              if [ -z "$profile_tag" ] || ! git diff --quiet "$profile_tag"..HEAD -- services/profile-service; then
+                PROFILE_CHANGED=true
+              else
+                PROFILE_CHANGED=false
+              fi
+            fi
+            matrix="$(jq -cn --argjson auth "$AUTH_CHANGED" --argjson profile "$PROFILE_CHANGED" '
+              {include: [
+                if $auth then {service: "auth-service"} else empty end,
+                if $profile then {service: "profile-service"} else empty end
+              ]}
+            ')"
+          fi
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "services=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"

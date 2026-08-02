@@ -1,10 +1,11 @@
-name: Release
+name: CD
 
 on:
   push:
     branches: [main]
     paths:
-      - 'services/**'
+      - "services/**"
+  workflow_dispatch:
 
 permissions: {}
 
@@ -15,26 +16,33 @@ concurrency:
 jobs:
   detect-changes:
     name: Detect changed services
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     permissions:
       contents: read
       pull-requests: read
     uses: ./.github/workflows/detect-changes.yml
+    with:
+      detect_unreleased_services: true
+      force_all_services: ${{ github.event_name == 'workflow_dispatch' }}
 
   application-ci:
     name: Validate application
     needs: detect-changes
+    if: needs.detect-changes.outputs.services == 'true'
     permissions:
       actions: read
-      contents: read
+      contents: write
       security-events: write
     uses: ./.github/workflows/ci.yml
     with:
+      allow_format: false
       matrix: ${{ needs.detect-changes.outputs.matrix }}
     secrets: inherit
 
   version-services:
     name: Prepare service release (${{ matrix.service }})
     needs: [detect-changes, application-ci]
+    if: needs.detect-changes.outputs.services == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -93,7 +101,9 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: service-release-${{ matrix.service }}
-          path: .release/${{ matrix.service }}
+          path: .release
+          if-no-files-found: error
+          include-hidden-files: true
           retention-days: 1
 
   finalize-release:
@@ -104,7 +114,6 @@ jobs:
       actions: read
       contents: write
     outputs:
-      any_service_released: ${{ steps.services.outputs.any }}
       publish_matrix: ${{ steps.services.outputs.matrix }}
       release_commit: ${{ steps.state.outputs.commit }}
     steps:
@@ -131,12 +140,15 @@ jobs:
         with:
           pattern: service-release-*
           path: .releases
+          merge-multiple: true
 
       - name: Apply service release changes
         id: services
         run: |
+          metadata_files=(.releases/*/metadata.json)
+          test -e "${metadata_files[0]}"
           matrix='{"include":[]}'
-          for metadata in .releases/service-release-*/metadata.json; do
+          for metadata in "${metadata_files[@]}"; do
             if [ "$(jq -r '.released' "$metadata")" != true ]; then
               continue
             fi
@@ -152,10 +164,9 @@ jobs:
               <<< "$matrix")"
           done
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "any=$([[ "$matrix" == '{"include":[]}' ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -172,17 +183,21 @@ jobs:
         run: semantic-release
 
       - name: Create service tags
-        if: steps.services.outputs.any == 'true'
         run: |
           test -z "$(git status --porcelain -- CHANGELOG.md 'services/*/CHANGELOG.md' 'services/*/pyproject.toml' 'services/*/uv.lock')"
+          metadata_files=(.releases/*/metadata.json)
+          test -e "${metadata_files[0]}"
           tags=()
-          for metadata in .releases/service-release-*/metadata.json; do
+          for metadata in "${metadata_files[@]}"; do
             if [ "$(jq -r '.released' "$metadata")" = true ]; then
               tag="$(jq -r '.tag' "$metadata")"
               git tag "$tag"
               tags+=("$tag")
             fi
           done
+          if [ "${#tags[@]}" -eq 0 ]; then
+            exit 0
+          fi
           git push origin "${tags[@]}"
 
       - name: Export release state
@@ -192,7 +207,7 @@ jobs:
   publish:
     name: Publish container image (${{ matrix.service }} ${{ matrix.version }})
     needs: finalize-release
-    if: needs.finalize-release.outputs.any_service_released == 'true'
+    if: needs.finalize-release.outputs.publish_matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -228,14 +243,52 @@ jobs:
         uses: docker/setup-buildx-action@v4.2.0
 
       - name: Build and push Docker images
-        id: image
         uses: docker/build-push-action@v7.3.0
         with:
           context: services/${{ matrix.service }}
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }},ignore-error=true
+
+  sign:
+    name: Sign container image (${{ matrix.service }} ${{ matrix.version }})
+    needs: [finalize-release, publish]
+    if: needs.finalize-release.outputs.publish_matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.finalize-release.outputs.publish_matrix) }}
+    env:
+      AWS_REGION: ap-southeast-1
+      IMAGE_TAG: v${{ matrix.version }}
+      REPOSITORY: nexus-${{ matrix.service }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
+          role-session-name: nexus-app-sign
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve image digest
+        id: image
+        run: |
+          digest="$(aws ecr batch-get-image \
+            --repository-name "$REPOSITORY" \
+            --image-ids imageTag="$IMAGE_TAG" \
+            --query 'images[0].imageId.imageDigest' \
+            --output text)"
+          test -n "$digest"
+          test "$digest" != None
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
       - name: Anchore SBOM Action
         uses: anchore/sbom-action@v0.24.0
@@ -258,8 +311,8 @@ jobs:
   update-gitops:
     name: Create GitOps PR (${{ matrix.service }} ${{ matrix.version }})
     permissions: {}
-    needs: [finalize-release, publish]
-    if: needs.finalize-release.outputs.any_service_released == 'true'
+    needs: [finalize-release, sign]
+    if: needs.finalize-release.outputs.publish_matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -292,10 +345,14 @@ jobs:
             exit 0
           fi
           branch="chore/update-$SERVICE-${IMAGE_TAG//./-}"
-          git config user.name "nexus-cicd-bot"
-          git config user.email "$BOT_EMAIL"
-          git switch -c "$branch"
-          git add "charts/$SERVICE/values-dev.yaml"
-          git commit -m "chore($SERVICE): update image to $IMAGE_TAG"
-          git push origin "$branch"
-          gh pr create --repo nguyentin05/nexus-gitops --base main --head "$branch" --title "chore($SERVICE): update image to $IMAGE_TAG" --body "Automated promotion from nexus-app release commit $RELEASE_SHA."
+          if ! git ls-remote --exit-code --heads origin "$branch" > /dev/null; then
+            git config user.name "nexus-cicd-bot"
+            git config user.email "$BOT_EMAIL"
+            git switch -c "$branch"
+            git add "charts/$SERVICE/values-dev.yaml"
+            git commit -m "chore($SERVICE): update image to $IMAGE_TAG"
+            git push origin "$branch"
+          fi
+          if [ "$(gh pr list --repo nguyentin05/nexus-gitops --head "$branch" --state open --json number --jq length)" -eq 0 ]; then
+            gh pr create --repo nguyentin05/nexus-gitops --base main --head "$branch" --title "chore($SERVICE): update image to $IMAGE_TAG" --body "Automated promotion from nexus-app release commit $RELEASE_SHA."
+          fi

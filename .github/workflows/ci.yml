@@ -3,6 +3,10 @@ name: Application CI
 on:
   workflow_call:
     inputs:
+      allow_format:
+        default: true
+        required: false
+        type: boolean
       matrix:
         description: Changed service matrix
         required: true
@@ -14,6 +18,7 @@ jobs:
   format-code:
     name: Format changed services
     if: >-
+      inputs.allow_format && 
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
@@ -128,14 +133,14 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.37.2
+        uses: github/codeql-action/init@v4.37.3
         with:
           languages: python
           build-mode: none
           queries: security-extended
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.37.2
+        uses: github/codeql-action/analyze@v4.37.3
 
   build:
     name: Build container image (${{ matrix.service }})
@@ -165,7 +170,7 @@ jobs:
           push: false
           tags: local/nexus-${{ matrix.service }}:${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }},ignore-error=true
 
       - name: Export container image
         run: docker save local/nexus-${{ matrix.service }}:${{ github.sha }} | gzip > image-${{ matrix.service }}.tar.gz
