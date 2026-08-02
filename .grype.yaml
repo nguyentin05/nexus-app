@@ -1,3 +1,11 @@
 ignore:
   - vulnerability: CVE-2026-15308
     reason: Nexus does not parse untrusted input with Python html.parser; remove when Python 3.13 includes the upstream fix.
+  - vulnerability: CVE-2026-11940
+    package:
+      name: python
+    reason: The services do not extract untrusted tar archives; remove when a patched stable CPython release is available.
+  - vulnerability: CVE-2026-11972
+    package:
+      name: python
+    reason: The services do not process tar archives in streaming mode; remove when a patched stable CPython release is available.
