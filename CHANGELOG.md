@@ -2,6 +2,8 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.15](https://github.com/nguyentin05/nexus-app/compare/v0.1.14...v0.1.15) (2026-08-03)
+
 ## [0.1.14](https://github.com/nguyentin05/nexus-app/compare/v0.1.13...v0.1.14) (2026-08-03)
 
 ## [0.1.13](https://github.com/nguyentin05/nexus-app/compare/v0.1.12...v0.1.13) (2026-08-02)
