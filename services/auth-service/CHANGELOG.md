@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.2.0 (2026-08-25)
+
+### Deps
+
+- Bump the auth-dependencies group across 1 directory with 2 updates
+  ([`f31aa22`](https://github.com/nguyentin05/nexus-app/commit/f31aa22aa7e93f88e3c6d9042c9639bdb562b71e))
+
+### Features
+
+- Export telemetry through OTLP
+  ([`aa80672`](https://github.com/nguyentin05/nexus-app/commit/aa80672b8ab76054651e399b41707e4138894538))
+
+
 ## v0.1.12 (2026-08-03)
 
 ### Deps

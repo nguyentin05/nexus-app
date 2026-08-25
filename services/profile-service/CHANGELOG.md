@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.0 (2026-08-25)
+
+### Features
+
+- Export telemetry through OTLP
+  ([`7da645d`](https://github.com/nguyentin05/nexus-app/commit/7da645d36bf2f2d3b8f55e4ed047ed848d105c29))
+
+
 ## v0.1.7 (2026-08-03)
 
 ### Deps
