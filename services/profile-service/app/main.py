@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.db import init_schema
 from app.events import start_consumer, stop_consumer
 from app.metrics import metrics_middleware
+from app.telemetry import configure_telemetry
 
 LOGGER = logging.getLogger("profile-service")
 
@@ -21,6 +22,7 @@ async def collect_metrics(request: Request, call_next) -> Response:
 
 
 app.include_router(api_router)
+configure_telemetry(app, settings.PROJECT_NAME, settings.VERSION)
 
 
 @app.on_event("startup")
