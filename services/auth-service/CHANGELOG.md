@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.2.12 (2026-09-01)
+
+### Performance Improvements
+
+- Delivery benchmark run 022-20260901T065049Z
+  ([#70](https://github.com/nguyentin05/nexus-app/pull/70),
+  [`8cde642`](https://github.com/nguyentin05/nexus-app/commit/8cde6425cb83c000645a5a624c49a52fd55a740f))
+
+
 ## v0.2.11 (2026-09-01)
 
 ### Performance Improvements
