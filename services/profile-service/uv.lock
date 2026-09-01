@@ -792,7 +792,7 @@ wheels = [
 
 [[package]]
 name = "profile-service"
-version = "0.2.7"
+version = "0.2.8"
 source = { virtual = "." }
 dependencies = [
     { name = "boto3" },
