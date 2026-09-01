@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.1](https://github.com/nguyentin05/nexus-app/compare/v0.2.0...v0.2.1) (2026-09-01)
+
+### Performance
+
+* **auth:** delivery benchmark run 001-20260901T054812Z ([#49](https://github.com/nguyentin05/nexus-app/issues/49)) ([cf1350e](https://github.com/nguyentin05/nexus-app/commit/cf1350e3ad5543619ef04a4b20f2d39096472e68))
+
+### Dependencies
+
+* **auth:** bump boto3 from 1.43.78 to 1.43.82 in /services/auth-service in the auth-dependencies group ([c68174a](https://github.com/nguyentin05/nexus-app/commit/c68174a3033a75668ae6b0896d97fdc7767bf527))
+
 ## [0.2.0](https://github.com/nguyentin05/nexus-app/compare/v0.1.16...v0.2.0) (2026-08-25)
 
 ### Features
