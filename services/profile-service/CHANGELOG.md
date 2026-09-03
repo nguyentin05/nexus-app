@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.2.17 (2026-09-03)
+
+### Deps
+
+- Bump the profile-dependencies group across 1 directory with 2 updates
+  ([#44](https://github.com/nguyentin05/nexus-app/pull/44),
+  [`870fb7e`](https://github.com/nguyentin05/nexus-app/commit/870fb7e0516f81595ebf520d5a7f41b553168230))
+
+
 ## v0.2.16 (2026-09-01)
 
 ### Performance Improvements

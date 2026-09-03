@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.34](https://github.com/nguyentin05/nexus-app/compare/v0.2.33...v0.2.34) (2026-09-03)
+
+### Dependencies
+
+* **profile:** bump the profile-dependencies group across 1 directory with 2 updates ([#44](https://github.com/nguyentin05/nexus-app/issues/44)) ([870fb7e](https://github.com/nguyentin05/nexus-app/commit/870fb7e0516f81595ebf520d5a7f41b553168230))
+
 ## [0.2.33](https://github.com/nguyentin05/nexus-app/compare/v0.2.32...v0.2.33) (2026-09-01)
 
 ### Performance
