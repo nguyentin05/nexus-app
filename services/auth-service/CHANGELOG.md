@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.18 (2026-09-03)
+
+### Performance Improvements
+
+- Rebuild image for new ECR registry
+  ([`ac294a6`](https://github.com/nguyentin05/nexus-app/commit/ac294a6995768776770ea2f7b01d6b5d50eb59bf))
+
+
 ## v0.2.17 (2026-09-01)
 
 ### Performance Improvements

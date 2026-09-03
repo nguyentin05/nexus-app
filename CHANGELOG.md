@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.35](https://github.com/nguyentin05/nexus-app/compare/v0.2.34...v0.2.35) (2026-09-03)
+
+### Performance
+
+* **auth:** rebuild image for new ECR registry ([ac294a6](https://github.com/nguyentin05/nexus-app/commit/ac294a6995768776770ea2f7b01d6b5d50eb59bf))
+
 ## [0.2.34](https://github.com/nguyentin05/nexus-app/compare/v0.2.33...v0.2.34) (2026-09-03)
 
 ### Dependencies
