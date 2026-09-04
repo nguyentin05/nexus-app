@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.20 (2026-09-04)
+
+### Bug Fixes
+
+- Publish compact SBOM attestation
+  ([`188b9c6`](https://github.com/nguyentin05/nexus-app/commit/188b9c6a2793bc48eddb1bb1462b7499bfb27128))
+
+
 ## v0.2.19 (2026-09-04)
 
 ### Bug Fixes

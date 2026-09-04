@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.38](https://github.com/nguyentin05/nexus-app/compare/v0.2.37...v0.2.38) (2026-09-04)
+
+### Bug Fixes
+
+* **auth:** publish compact SBOM attestation ([188b9c6](https://github.com/nguyentin05/nexus-app/commit/188b9c6a2793bc48eddb1bb1462b7499bfb27128))
+* **ci:** keep signed SBOM within policy limit ([377270a](https://github.com/nguyentin05/nexus-app/commit/377270a1530f8c194b1a45e200bb9c2c03dcdc02))
+* **profile:** publish compact SBOM attestation ([27ccd2b](https://github.com/nguyentin05/nexus-app/commit/27ccd2b7a02b0f2acb1c0e053229e11e3c545c54))
+
 ## [0.2.37](https://github.com/nguyentin05/nexus-app/compare/v0.2.36...v0.2.37) (2026-09-04)
 
 ### Bug Fixes
