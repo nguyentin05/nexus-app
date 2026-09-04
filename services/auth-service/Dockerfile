@@ -14,6 +14,7 @@ RUN uv sync --frozen --no-cache --no-dev
 
 FROM python:3.13-slim-bookworm AS runtime
 LABEL org.opencontainers.image.source="https://github.com/nguyentin05/nexus-app"
+LABEL org.opencontainers.image.title="nexus-auth-service"
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
