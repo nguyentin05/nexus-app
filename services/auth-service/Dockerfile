@@ -27,6 +27,8 @@ RUN useradd --create-home --uid 10001 app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --chown=app:app app ./app
 
+RUN pip install --no-cache-dir certifi==2022.12.7
+
 USER app
 
 EXPOSE 8000
