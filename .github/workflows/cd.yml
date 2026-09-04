@@ -292,6 +292,8 @@ jobs:
 
       - name: Anchore SBOM Action
         uses: anchore/sbom-action@v0.24.0
+        env:
+          SYFT_FILE_METADATA_SELECTION: none
         with:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}@${{ steps.image.outputs.digest }}
           format: spdx-json
