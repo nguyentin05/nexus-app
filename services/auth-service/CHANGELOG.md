@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-09-04)
+
+### Features
+
+- Add controlled AIOps fault injection ([#135](https://github.com/nguyentin05/nexus-app/pull/135),
+  [`0081365`](https://github.com/nguyentin05/nexus-app/commit/0081365256d801076a6984887f4132884679051a))
+
+
 ## v0.2.20 (2026-09-04)
 
 ### Bug Fixes

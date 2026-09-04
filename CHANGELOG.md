@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.0](https://github.com/nguyentin05/nexus-app/compare/v0.2.38...v0.3.0) (2026-09-04)
+
+### Features
+
+* **auth:** add controlled AIOps fault injection ([#135](https://github.com/nguyentin05/nexus-app/issues/135)) ([0081365](https://github.com/nguyentin05/nexus-app/commit/0081365256d801076a6984887f4132884679051a))
+
 ## [0.2.38](https://github.com/nguyentin05/nexus-app/compare/v0.2.37...v0.2.38) (2026-09-04)
 
 ### Bug Fixes
