@@ -8,6 +8,12 @@ BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
 REQUESTS: Counter[tuple[str, str, int]] = Counter()
 DURATION_BUCKETS: Counter[tuple[str, str, float | str]] = Counter()
 DURATION_SUMS: Counter[tuple[str, str]] = Counter()
+BENCHMARK_FAULT: tuple[str, str, str, int] | None = None
+
+
+def set_benchmark_fault(scenario: str, run_id: str, symptom: str, active: int) -> None:
+    global BENCHMARK_FAULT
+    BENCHMARK_FAULT = (scenario, run_id, symptom, active)
 
 
 def route_path(request: Request) -> str:
@@ -85,6 +91,16 @@ def render_metrics(service: str, version: str) -> str:
         )
         lines.append(
             f"nexus_http_request_duration_seconds_sum{{{labels(method=method, path=path)}}} {total:.6f}"
+        )
+
+    if BENCHMARK_FAULT is not None:
+        scenario, run_id, symptom, active = BENCHMARK_FAULT
+        lines.extend(
+            [
+                "# HELP nexus_aiops_benchmark_fault Active controlled AIOps benchmark fault.",
+                "# TYPE nexus_aiops_benchmark_fault gauge",
+                f"nexus_aiops_benchmark_fault{{{labels(scenario=scenario, run_id=run_id, symptom=symptom)}}} {active}",
+            ]
         )
 
     return "\n".join(lines) + "\n"
