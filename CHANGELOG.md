@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.36](https://github.com/nguyentin05/nexus-app/compare/v0.2.35...v0.2.36) (2026-09-04)
+
+### Bug Fixes
+
+* **ci:** use Kyverno-compatible Cosign ([cc45f95](https://github.com/nguyentin05/nexus-app/commit/cc45f95b0a86911aea6eb13b0ecc3b20a4330391))
+
 ## [0.2.35](https://github.com/nguyentin05/nexus-app/compare/v0.2.34...v0.2.35) (2026-09-03)
 
 ### Performance
