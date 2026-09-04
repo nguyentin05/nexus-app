@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     AWS_REGION: str = "ap-southeast-1"
     TOKEN_TTL_SECONDS: int = 3600
     DB_CONNECT_TIMEOUT_SECONDS: int = 5
+    AIOPS_BENCHMARK_ENABLED: bool = False
 
 
 settings = Settings()
