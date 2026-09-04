@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.37](https://github.com/nguyentin05/nexus-app/compare/v0.2.36...v0.2.37) (2026-09-04)
+
+### Bug Fixes
+
+* **auth:** republish signed image ([791a22b](https://github.com/nguyentin05/nexus-app/commit/791a22bcd143e22a49c117eabbb1e7189181aa10))
+* **images:** correct OCI source labels ([2e9d38d](https://github.com/nguyentin05/nexus-app/commit/2e9d38da2ade0ca1284b46d6acc99a3f1f195806))
+* **profile:** republish signed image ([a60bc63](https://github.com/nguyentin05/nexus-app/commit/a60bc638e577f323fdc952df922e57bbc08e1a7a))
+
 ## [0.2.36](https://github.com/nguyentin05/nexus-app/compare/v0.2.35...v0.2.36) (2026-09-04)
 
 ### Bug Fixes

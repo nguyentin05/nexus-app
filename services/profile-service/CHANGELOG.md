@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.2.18 (2026-09-04)
+
+### Bug Fixes
+
+- Republish signed image
+  ([`a60bc63`](https://github.com/nguyentin05/nexus-app/commit/a60bc638e577f323fdc952df922e57bbc08e1a7a))
+
+- **images**: Correct OCI source labels
+  ([`2e9d38d`](https://github.com/nguyentin05/nexus-app/commit/2e9d38da2ade0ca1284b46d6acc99a3f1f195806))
+
+
 ## v0.2.17 (2026-09-03)
 
 ### Deps
