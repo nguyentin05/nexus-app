@@ -13,7 +13,7 @@ COPY app ./app
 RUN uv sync --frozen --no-cache --no-dev
 
 FROM python:3.13-slim-bookworm AS runtime
-\nLABEL org.opencontainers.image.source="https://github.com/nguyentin05/nexus-app"
+LABEL org.opencontainers.image.source="https://github.com/nguyentin05/nexus-app"
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
