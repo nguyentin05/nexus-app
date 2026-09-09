@@ -46,9 +46,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7.2.0
         with:
           commit_message: "style(project): auto-format Python sources"
-          commit_user_name: nexus-cicd-bot
+          commit_user_name: nexus-cd-bot
           commit_user_email: ${{ secrets.NEXUS_CICD_BOT_EMAIL }}
-          commit_author: nexus-cicd-bot <${{ secrets.NEXUS_CICD_BOT_EMAIL }}>
+          commit_author: nexus-cd-bot <${{ secrets.NEXUS_CICD_BOT_EMAIL }}>
 
   lint-code:
     name: Lint Python (${{ matrix.service }})
