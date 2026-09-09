@@ -1,6 +1,6 @@
 [project]
 name = "profile-service"
-version = "0.2.26"
+version = "0.2.27"
 description = "Nexus microservice"
 readme = "README.md"
 requires-python = ">=3.13"
