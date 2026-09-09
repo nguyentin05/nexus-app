@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.2 (2026-09-09)
+
+### Deps
+
+- Bump boto3 ([#138](https://github.com/nguyentin05/nexus-app/pull/138),
+  [`d334e4e`](https://github.com/nguyentin05/nexus-app/commit/d334e4e45780c1bc3e7f64410f9cdb67fbdbbafe))
+
+
 ## v0.3.1 (2026-09-09)
 
 ### Bug Fixes

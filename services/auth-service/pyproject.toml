@@ -1,6 +1,6 @@
 [project]
 name = "auth-service"
-version = "0.3.1"
+version = "0.3.2"
 description = "Nexus microservice"
 readme = "README.md"
 requires-python = ">=3.13"
