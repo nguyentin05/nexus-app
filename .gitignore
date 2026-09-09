@@ -179,3 +179,5 @@ pyrightconfig.json
 /benchmark-results/
 /scripts/benchmark-*.sh
 **/.delivery-benchmark
+
+AGENTS.md
