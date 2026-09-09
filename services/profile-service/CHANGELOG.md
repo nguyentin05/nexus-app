@@ -2,6 +2,32 @@
 
 <!-- version list -->
 
+## v0.2.20 (2026-09-09)
+
+### Bug Fixes
+
+- Upgrade patched PCRE runtime package ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+- **auth**: Upgrade patched PCRE runtime package
+  ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+- **security**: Upgrade patched PCRE runtime package
+  ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+### Chores
+
+- **repo**: Keep benchmark tooling local [skip ci]
+  ([`8a4f682`](https://github.com/nguyentin05/nexus-app/commit/8a4f682be270441e4a1b1ff505fd23107090c446))
+
+### Deps
+
+- Bump boto3 ([#137](https://github.com/nguyentin05/nexus-app/pull/137),
+  [`4b1cd23`](https://github.com/nguyentin05/nexus-app/commit/4b1cd23375163fcaa65667f6014f2265ae13a9e6))
+
+
 ## v0.2.19 (2026-09-04)
 
 ### Bug Fixes

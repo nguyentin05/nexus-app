@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.1](https://github.com/nguyentin05/nexus-app/compare/v0.3.0...v0.3.1) (2026-09-09)
+
+### Bug Fixes
+
+* **cicd:** fix bot configuration ([0d42cac](https://github.com/nguyentin05/nexus-app/commit/0d42cac42c097dcad1e2a79ec4f366b318d46690))
+* **security:** upgrade patched PCRE runtime package ([#140](https://github.com/nguyentin05/nexus-app/issues/140)) ([9f3c047](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+### Performance
+
+* **auth:** delivery benchmark run 034-20260909T091933Z ([#139](https://github.com/nguyentin05/nexus-app/issues/139)) ([89a34c9](https://github.com/nguyentin05/nexus-app/commit/89a34c9ca538ac4fe9af31c32b5dc1c658afab79))
+
+### Dependencies
+
+* **profile:** bump boto3 ([#137](https://github.com/nguyentin05/nexus-app/issues/137)) ([4b1cd23](https://github.com/nguyentin05/nexus-app/commit/4b1cd23375163fcaa65667f6014f2265ae13a9e6))
+
 ## [0.3.0](https://github.com/nguyentin05/nexus-app/compare/v0.2.38...v0.3.0) (2026-09-04)
 
 ### Features

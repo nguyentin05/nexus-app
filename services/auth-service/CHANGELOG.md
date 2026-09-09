@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v0.3.1 (2026-09-09)
+
+### Bug Fixes
+
+- Upgrade patched PCRE runtime package ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+- **profile**: Upgrade patched PCRE runtime package
+  ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+- **security**: Upgrade patched PCRE runtime package
+  ([#140](https://github.com/nguyentin05/nexus-app/pull/140),
+  [`9f3c047`](https://github.com/nguyentin05/nexus-app/commit/9f3c04716127d1516182c9e57bc86b1101e0b6dc))
+
+### Chores
+
+- **repo**: Keep benchmark tooling local [skip ci]
+  ([`8a4f682`](https://github.com/nguyentin05/nexus-app/commit/8a4f682be270441e4a1b1ff505fd23107090c446))
+
+### Performance Improvements
+
+- Delivery benchmark run 034-20260909T091933Z
+  ([#139](https://github.com/nguyentin05/nexus-app/pull/139),
+  [`89a34c9`](https://github.com/nguyentin05/nexus-app/commit/89a34c9ca538ac4fe9af31c32b5dc1c658afab79))
+
+
 ## v0.3.0 (2026-09-04)
 
 ### Features
