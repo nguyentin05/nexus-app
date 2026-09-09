@@ -22,6 +22,11 @@ ENV PATH="/app/.venv/bin:$PATH" \
 
 WORKDIR /app
 
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN useradd --create-home --uid 10001 app
 
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
