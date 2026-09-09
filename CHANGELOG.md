@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.29](https://github.com/nguyentin05/nexus-app/compare/v0.3.28...v0.3.29) (2026-09-09)
+
+### Performance
+
+* **profile:** delivery benchmark run 059-20260909T130645Z ([#167](https://github.com/nguyentin05/nexus-app/issues/167)) ([579ca46](https://github.com/nguyentin05/nexus-app/commit/579ca46943b167a2e700222c1414065d643d845f))
+
 ## [0.3.28](https://github.com/nguyentin05/nexus-app/compare/v0.3.27...v0.3.28) (2026-09-09)
 
 ### Performance
