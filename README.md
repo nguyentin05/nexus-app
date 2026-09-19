@@ -12,12 +12,9 @@ quality, security, reliability and policy checks.
 
 ## Architecture
 
-<figure style="text-align: center;">
-  <img src="./docs/architecture/architecture.png" alt="Architecture Diagram">
-  <figcaption style="font-style: italic; margin-top: 8px;">
-    Architecture Diagram - C4 Model (Container View)
-  </figcaption>
-</figure>
+<img src="./docs/architecture/architecture.png" alt="Architecture Diagram">
+<i>Architecture Diagram - C4 Model (Container View)</i>
+<br>
 
 ### Components
 
@@ -57,12 +54,10 @@ Each service has its own information like pyproject, uv environment, changelog, 
 
 ## CI/CD
 
-<figure style="text-align: center;">
-  <img src="./docs/architecture/cicd-pipelines.png" alt="CI/CD Pipeline">
-  <figcaption style="font-style: italic; margin-top: 8px;">
-    CI/CD Pipelines
-  </figcaption>
-</figure>
+<img src="./docs/architecture/cicd-pipelines.png" alt="CI/CD Pipeline">
+<i>CI/CD Pipelines</i>
+<br>
+<br>
 
 | Stage | Purpose | Tooling |
 | --- | --- | --- |
