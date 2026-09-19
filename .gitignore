@@ -175,9 +175,4 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
-# Local benchmark tooling and results
-/benchmark-results/
-/scripts/benchmark-*.sh
-**/.delivery-benchmark
-
 AGENTS.md

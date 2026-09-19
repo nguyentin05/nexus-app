@@ -1,27 +1,47 @@
-# Nexus Application
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=004643&text=Nexus%20Application&textBg=false&section=header&reversal=false&fontSize=75&animation=fadeIn&stroke=EEEEEE&fontColor=FFFFFF&fontAlign=50&fontAlignY=40&strokeWidth=1"/>
+  <h3>A Microservices-Based User and Profile Management System</h3>
+</div>
 
 ## About
 
-nexus is the application monorepo for the Nexus platform. It contains the independently versioned backend services responsible for authentication and user profile management.
+A user and profile management system that provides registration, authentication,
+identity lookup and profile management. The application uses a microservices
+architecture, event-driven communication and an automated CI/CD pipeline with
+quality, security, reliability and policy checks.
 
 ## Architecture
 
-The application follows a microservices architecture with separate Auth and Profile services. An API Gateway provides a single entry point and routes requests to the responsible service. Event-driven communication is used for workflows that do not require a synchronous response: Auth publishes user registration events and Profile consumes them to create profile data. Both services persist application data in PostgreSQL.
+<figure style="text-align: center;">
+  <img src="./docs/architecture/architecture.png" alt="Architecture Diagram">
+  <figcaption style="font-style: italic; margin-top: 8px;">
+    Architecture Diagram - C4 Model (Container View)
+  </figcaption>
+</figure>
 
-See [Application Architecture](docs/architecture.md) for the container view.
+### Components
 
-## Features
+| Component | Type | Responsibility |
+| --- | --- | --- |
+| Auth | Service | User registration, login, logout, and identity lookup |
+| Profile | Service | Profile retrieval, profile updates, and avatar uploads |
+| Amazon SQS | Message broker | Asynchronous delivery of events |
+| PostgreSQL | Relational database | Persistent storage for user and profile data |
 
-- User registration
-- Login and bearer token authentication
-- Stateless logout
-- Current user identity lookup
-- Profile retrieval and display name updates
-- Avatar upload through Cloudinary
-- Asynchronous profile creation from user registration events
-- Health checks and Prometheus-compatible metrics endpoints
+### Directory Structure
 
-See [API Documentation](docs/api.md) for endpoints and request examples.
+```text
+services/
+  auth-service/       Authentication service
+  profile-service/    Profile service
+docs/
+  architecture/       Application container view
+  openapi/            Versioned API specifications
+  api.md              Public and operational API summary
+.github/workflows/    CI/CD workflows
+```
+
+Each service has its own information like pyproject, uv environment, changelog, semantic version and image release. A change to one service does not force a release of the other service.
 
 ## Tech Stack
 
@@ -34,3 +54,33 @@ See [API Documentation](docs/api.md) for endpoints and request examples.
 - uv
 - Ruff and pytest
 - Docker
+
+## CI/CD
+
+<figure style="text-align: center;">
+  <img src="./docs/architecture/cicd-pipelines.png" alt="CI/CD Pipeline">
+  <figcaption style="font-style: italic; margin-top: 8px;">
+    CI/CD Pipelines
+  </figcaption>
+</figure>
+
+| Stage | Purpose | Tooling |
+| --- | --- | --- |
+| Lint and Format | Enforce consistent Python style and formatting | Ruff |
+| Secret Detection | Detect credentials and secrets committed to source control | Gitleaks |
+| Dockerfile Linting | Validate Dockerfile syntax and best practices | Hadolint |
+| SAST | Analyze source code for security vulnerabilities | CodeQL |
+| Container Build | Build service images for changed services | Docker |
+| Container Validation | Start each image and verify its health endpoint | curl |
+| CVE Scan | Scan the generated SBOM for fixable vulnerabilities | Anchore and Grype |
+| SBOM Generation | Generate an SPDX software bill of materials | Syft |
+| Semantic Versioning | Version and release each changed service independently | Semantic Release |
+| Image Signing and Attestation | Sign image digests and attest their SBOMs | Cosign |
+| GitOps Update | Open a deployment image update in the GitOps repository | GitHub Bot |
+
+## Contributing
+
+Contributions are welcome. Submit changes through a PR and ensure the
+relevant lint, test, and security checks pass. This project follows the
+[Conventional Commits](https://www.conventionalcommits.org/) specification.
+Commit messages must use the format `type(scope): description`.
