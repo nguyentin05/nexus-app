@@ -6,7 +6,7 @@ from app.core.config import settings
 
 try:
     import boto3
-except ImportError:  # pragma: no cover - dependency is installed in runtime image
+except ImportError:
     boto3 = None
 
 LOGGER = logging.getLogger("auth-service")
