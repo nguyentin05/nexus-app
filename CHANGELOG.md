@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.35](https://github.com/nguyentin05/nexus-app/compare/v0.3.34...v0.3.35) (2026-09-19)
+
+### Bug Fixes
+
+* **profile:** CVE-2026-82049 resolve and update dockerfile ([cd3d281](https://github.com/nguyentin05/nexus-app/commit/cd3d2819e6ae3a287e4651c65908a211d242da4d))
+* **profile:** CVE-2026-82049 resolve and update dockerfile ([a9cea12](https://github.com/nguyentin05/nexus-app/commit/a9cea12d806b25808566d9a1cb7849484a94a898))
+
+### Documentation
+
+* **project:** update README ([3664b31](https://github.com/nguyentin05/nexus-app/commit/3664b3192fedfd45629a9365a70beb672bee55c2))
+
 ## [0.3.34](https://github.com/nguyentin05/nexus-app/compare/v0.3.33...v0.3.34) (2026-09-19)
 
 ### Bug Fixes

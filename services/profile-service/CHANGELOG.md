@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.36 (2026-09-19)
+
+### Bug Fixes
+
+- CVE-2026-82049 resolve and update dockerfile
+  ([`a9cea12`](https://github.com/nguyentin05/nexus-app/commit/a9cea12d806b25808566d9a1cb7849484a94a898))
+
+
 ## v0.2.35 (2026-09-09)
 
 ### Performance Improvements
