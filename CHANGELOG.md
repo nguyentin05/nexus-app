@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.34](https://github.com/nguyentin05/nexus-app/compare/v0.3.33...v0.3.34) (2026-09-19)
+
+### Bug Fixes
+
+* **auth:** CVE-2026-82049 resolve ([b5991f1](https://github.com/nguyentin05/nexus-app/commit/b5991f126be940410505fa1f880325c3a2c97b8b))
+* **auth:** update auth service dockerfile ([c552c10](https://github.com/nguyentin05/nexus-app/commit/c552c108e06df2dbced66994759b162349747688))
+* **auth:** update auth service dockerfile ([6af1b34](https://github.com/nguyentin05/nexus-app/commit/6af1b34a151e7337971978ce006ded1f385e739f))
+
 ## [0.3.33](https://github.com/nguyentin05/nexus-app/compare/v0.3.32...v0.3.33) (2026-09-09)
 
 ### Performance

@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.3.19 (2026-09-19)
+
+### Bug Fixes
+
+- CVE-2026-82049 resolve
+  ([`b5991f1`](https://github.com/nguyentin05/nexus-app/commit/b5991f126be940410505fa1f880325c3a2c97b8b))
+
+- Update auth service dockerfile
+  ([`6af1b34`](https://github.com/nguyentin05/nexus-app/commit/6af1b34a151e7337971978ce006ded1f385e739f))
+
+
 ## v0.3.18 (2026-09-09)
 
 ### Performance Improvements
