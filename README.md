@@ -42,7 +42,7 @@ Each service has its own information like pyproject, uv environment, changelog, 
 
 ## Tech Stack
 
-- Python 3.13
+- Python 3.14
 - FastAPI
 - Pydantic and Pydantic Settings
 - Psycopg 3 and PostgreSQL

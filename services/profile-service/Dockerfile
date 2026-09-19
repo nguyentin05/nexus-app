@@ -1,7 +1,6 @@
-FROM python:3.13-slim-bookworm AS builder
+FROM python:3.14.7-slim-bookworm AS builder
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -12,13 +11,11 @@ COPY app ./app
 
 RUN uv sync --frozen --no-cache --no-dev
 
-FROM python:3.13-slim-bookworm AS runtime
+FROM python:3.14.7-slim-bookworm AS runtime
 LABEL org.opencontainers.image.source="https://github.com/nguyentin05/nexus-app"
 LABEL org.opencontainers.image.title="nexus-profile-service"
 
-ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
